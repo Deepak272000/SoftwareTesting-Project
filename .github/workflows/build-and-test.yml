@@ -1,0 +1,53 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, Deepak-dev ]
+  pull_request:
+    branches: [ main, Deepak-dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        java-version: [11, 17]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK ${{ matrix.java-version }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build with Maven
+      run: mvn clean install -DskipTests
+    
+    - name: Run tests with Maven
+      run: mvn clean test
+    
+    - name: Generate Test Report
+      if: always()
+      run: mvn surefire-report:report
+    
+    - name: Publish Test Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-java${{ matrix.java-version }}
+        path: target/surefire-reports/
+    
+    - name: Publish Site Report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: site-report-java${{ matrix.java-version }}
+        path: target/site/
+    
+    - name: Check Test Results
+      if: failure()
+      run: echo "Tests failed! Please check the test results above."
