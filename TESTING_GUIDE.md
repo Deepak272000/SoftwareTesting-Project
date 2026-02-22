@@ -38,7 +38,7 @@ mvn clean test
 
 **Expected Output:**
 ```
-Tests run: 42, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 45, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -373,7 +373,7 @@ mvn clean install
 ```bash
 mvn test
 ```
-✅ Should see: `Tests run: 42, Failures: 0`
+✅ Should see: `Tests run: 45, Failures: 0`
 
 ### Step 3: Run Interactive App
 ```bash
@@ -445,7 +445,7 @@ mvn test -e
 - Multiple command tracking
 
 ### Test Results
-- **Total Tests:** 42
+- **Total Tests:** 45
 - **Pass Rate:** 100%
 - **Coverage:** Core functionality, edge cases, boundary conditions
 
@@ -493,3 +493,71 @@ type *.txt
 ---
 
 Good luck with testing!
+
+---
+
+## TASK 2: Code Quality, Coverage, and Release Readiness
+
+### 1) Code Analysis Tool and Thresholds
+
+**Primary Tooling Used:**
+- JaCoCo (Maven plugin) for structural code coverage analysis
+- JUnit 5 test suite (unit + integration) for execution verification
+
+**Quality Thresholds for Release Decision:**
+- Method coverage: **≥ 95%**
+- Instruction coverage (statement proxy): **≥ 90%**
+- Branch coverage (condition): **≥ 85%**
+- Line coverage: **≥ 90%**
+- Cyclomatic complexity coverage: **≥ 90%**
+
+### 2) Coverage Results (from `target/site/jacoco/jacoco.xml`)
+
+The following values are taken directly from the current JaCoCo report totals:
+
+| Metric | Covered / Total | Percentage |
+|--------|------------------|------------|
+| Method | 49 / 51 | **96.08%** |
+| Instruction (statement proxy) | 715 / 769 | **92.98%** |
+| Branch (condition) | 66 / 73 | **90.41%** |
+| Line | 189 / 209 | **90.43%** |
+| Complexity | 84 / 92 | **91.30%** |
+
+### 3) Path Coverage (Decision-Path Matrix)
+
+Path coverage is tracked using a decision-path matrix over command-processing flows (initialize, movement, drawing state, replay, and boundary behavior). Each decision node maps to at least one positive and one alternative path.
+
+| Decision Area | Example Paths Covered | Current Status |
+|---------------|------------------------|----------------|
+| Initialization (`I n`) | Valid size, re-initialize flow | Covered |
+| Move (`M n`) with pen state | Pen up (no mark), pen down (mark) | Covered |
+| Direction changes (`L`, `R`) | Full orientation transitions | Covered |
+| Boundary handling | In-bounds print vs out-of-bounds internal position | Covered |
+| History replay (`H`) | Record/replay sequence integrity | Covered |
+| Quit/loop termination (`Q`) | Clean termination path | Covered |
+
+**Current path coverage status statement:**
+- The decision-path matrix indicates all identified critical decision paths are currently exercised by the combined unit and integration test set, with no uncovered high-risk path remaining in the defined command workflow.
+
+### 4) Software Release Decision
+
+**Decision:** ✅ **APPROVED FOR RELEASE**
+
+**Rationale:**
+- All defined coverage thresholds are met or exceeded.
+- Test suite status is stable (45 total tests, 100% pass rate).
+- Decision-path matrix confirms critical command-flow paths are covered.
+
+### 5) CoSTART Raw Prompts (Integration Tests + Coverage Focus)
+
+Use the following raw prompts for repeatable CoSTART-driven test design and review:
+
+1. **Context:** Java robot floor simulator with command-driven state transitions (`I`, `D`, `U`, `M`, `L`, `R`, `H`, `P`, `Q`). **Objective:** Generate integration tests that validate end-to-end command sequences including state mutation and output assertions. **Style:** JUnit 5, readable Given-When-Then names. **Tone:** Strict and deterministic. **Audience:** QA engineers. **Response:** Provide full test methods and expected assertions for position, direction, pen state, and printed floor output.
+
+2. **Context:** Current JaCoCo metrics are Method 96.08%, Instruction 92.98%, Branch 90.41%, Line 90.43%, Complexity 91.30%. **Objective:** Propose the smallest set of additional integration scenarios to increase branch and complexity confidence without redundant tests. **Style:** Minimal but high-value. **Tone:** Analytical. **Audience:** Release review board. **Response:** Return a ranked scenario list with risk justification, target class/method, and expected metric impact.
+
+3. **Context:** Command parser and simulator loop process user input line by line. **Objective:** Create integration tests for invalid, partial, and malformed inputs while preserving application stability. **Style:** Defensive testing strategy. **Tone:** Safety-focused. **Audience:** Maintainers and SDET team. **Response:** Provide test cases, expected console/system behavior, and criteria for rejecting vs ignoring commands.
+
+4. **Context:** History replay (`H`) must preserve command order and produce reproducible state transitions. **Objective:** Design integration tests that verify replay determinism across mixed command sets and boundary movements. **Style:** Deterministic state-machine validation. **Tone:** Technical and explicit. **Audience:** Developers and auditors. **Response:** Output decision-path matrix rows, corresponding tests, and assertions proving replay fidelity.
+
+5. **Context:** Release gate requires thresholds: Method ≥95%, Instruction ≥90%, Branch ≥85%, Line ≥90%, Complexity ≥90%. **Objective:** Produce an automated release-readiness checklist combining test execution and JaCoCo report validation. **Style:** CI-friendly checklist + command snippets. **Tone:** Operational. **Audience:** CI/CD owners. **Response:** Return executable Maven commands, pass/fail criteria, and a final approve/hold rule based on measured coverage values.

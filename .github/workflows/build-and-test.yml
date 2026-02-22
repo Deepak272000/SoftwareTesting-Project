@@ -2,9 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, Deepak-dev ]
+    branches: [ main, Deepak-dev, deepak-qa ]
   pull_request:
-    branches: [ main, Deepak-dev ]
+    branches: [ main, deepak-qa ]
 
 jobs:
   build:
