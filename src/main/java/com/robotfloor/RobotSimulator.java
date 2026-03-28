@@ -12,6 +12,7 @@ public class RobotSimulator {
     private Floor floor;
     private CommandHistory history;
     private boolean running;
+    private boolean replaying;
 
     /**
      * Constructor for RobotSimulator
@@ -21,6 +22,7 @@ public class RobotSimulator {
         this.floor = null;
         this.history = new CommandHistory();
         this.running = true;
+        this.replaying = false;
     }
 
     /**
@@ -85,7 +87,7 @@ public class RobotSimulator {
                 System.out.println("Unknown command: " + command);
         }
 
-        if (command != 'h') {
+        if (command != 'h' && !replaying) {
             history.addCommand(input);
         }
     }
@@ -200,10 +202,12 @@ public class RobotSimulator {
      */
     private void handleHistory() {
         System.out.println("Replaying history...");
+        replaying = true;
         for (String cmd : history.getCommands()) {
             System.out.println("> Enter command: " + cmd);
             executeCommand(cmd);
         }
+        replaying = false;
         System.out.println("History replay complete.");
     }
 
