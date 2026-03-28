@@ -135,10 +135,16 @@ public class RobotSimulator {
                 return;
             }
 
-            // Move and mark the floor
+            // Move and mark the floor, stopping at boundaries
             for (int i = 0; i < spaces; i++) {
                 if (robot.isPenDown()) {
                     floor.mark(robot.getX(), robot.getY());
+                }
+                int nextX = robot.getX() + robot.getFacing().getDx();
+                int nextY = robot.getY() + robot.getFacing().getDy();
+                if (!floor.isValidPosition(nextX, nextY)) {
+                    System.out.println("Warning: Robot reached the boundary of the floor. Movement stopped.");
+                    break;
                 }
                 robot.move(1);
             }
