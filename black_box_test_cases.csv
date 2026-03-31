@@ -1,0 +1,11 @@
+Test Case ID,Description,Input,Expected Result,Actual Result,Result
+BB01,Initialize simulator with valid size,"I 5",Floor is initialized successfully,"System initializes and prints System initialized with 5 x 5 floor",Pass
+BB02,Pen down and move robot,"I 5, D, M 2",Robot moves and marks floor path,"Robot moves from (0,0) to (0,2) and path is marked",Pass
+BB03,Turn right and move,"I 5, R, M 1, C",Robot faces east and position updates correctly,"Robot turns east, moves to (1,0), and current position reflects that",Pass
+BB04,Print floor,"I 5, D, M 2, P",Floor contents are printed,"Floor grid is printed with traced cells shown as *",Pass
+BB05,Show current position,"I 5, C","Position, pen state, and direction are displayed","Output is Position: 0, 0 - Pen: up - Facing: north",Pass
+BB06,Quit simulator,Q,Program ends,"Output is Program ended. and simulator stops running",Pass
+BB07,Initialize with invalid size,"I 0",System rejects invalid floor size,"Output is Error: Floor size must be greater than zero",Pass
+BB08,Move before initialization,"M 3",System rejects move before init,"Output is Error: System not initialized. Use 'I n' command first.",Pass
+BB09,Move with negative value,"I 5, M -1",System rejects negative movement,"Output is Error: Move distance must be non-negative",Pass
+BB10,Unknown command,X,System rejects unsupported command,"Output is Unknown command: x",Pass

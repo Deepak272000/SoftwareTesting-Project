@@ -1,114 +1,90 @@
 package com.robotfloor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for CommandHistory class
- */
-public class CommandHistoryTest {
-
-    private CommandHistory history;
-
-    @BeforeEach
-    public void setUp() {
-        history = new CommandHistory();
-    }
+class CommandHistoryTest {
 
     @Test
-    public void testHistoryInitialization() {
-        assertEquals(0, history.size(), "History should be empty on initialization");
-    }
+    void testAddCommandAndGetCommandPreserveExecutionOrder() {
+        // Statement Coverage
+        // Arrange
+        CommandHistory history = new CommandHistory();
 
-    @Test
-    public void testAddSingleCommand() {
-        history.addCommand("I 10");
-        assertEquals(1, history.size(), "History size should be 1");
-    }
-
-    @Test
-    public void testAddMultipleCommands() {
-        history.addCommand("I 10");
+        // Act
+        history.addCommand("I 5");
         history.addCommand("D");
-        history.addCommand("M 5");
-        history.addCommand("P");
-        assertEquals(4, history.size(), "History size should be 4");
-    }
+        history.addCommand("M 2");
 
-    @Test
-    public void testGetCommands() {
-        history.addCommand("U");
-        history.addCommand("D");
-        List<String> commands = history.getCommands();
-        assertEquals(2, commands.size());
-        assertEquals("U", commands.get(0));
-        assertEquals("D", commands.get(1));
-    }
-
-    @Test
-    public void testGetCommand() {
-        history.addCommand("I 10");
-        history.addCommand("D");
-        history.addCommand("M 5");
-        assertEquals("I 10", history.getCommand(0));
-        assertEquals("D", history.getCommand(1));
-        assertEquals("M 5", history.getCommand(2));
-    }
-
-    @Test
-    public void testClear() {
-        history.addCommand("U");
-        history.addCommand("D");
-        history.addCommand("M 3");
+        // Assert
         assertEquals(3, history.size());
+        assertEquals("I 5", history.getCommand(0));
+        assertEquals("D", history.getCommand(1));
+        assertEquals("M 2", history.getCommand(2));
+    }
 
+    @Test
+    void testGetCommandsReturnsDefensiveCopy() {
+        // Decision Coverage
+        // Arrange
+        CommandHistory history = new CommandHistory();
+        history.addCommand("I 4");
+
+        // Act
+        List<String> snapshot = history.getCommands();
+        snapshot.add("Q");
+
+        // Assert
+        assertEquals(1, history.size());
+        assertEquals("I 4", history.getCommand(0));
+        assertEquals(2, snapshot.size());
+    }
+
+    @Test
+    void testClearRemovesAllRecordedCommands() {
+        // Statement Coverage
+        // Arrange
+        CommandHistory history = new CommandHistory();
+        history.addCommand("U");
+        history.addCommand("D");
+
+        // Act
         history.clear();
-        assertEquals(0, history.size(), "History should be empty after clear");
+
+        // Assert
+        assertEquals(0, history.size());
+        assertTrue(history.getCommands().isEmpty());
     }
 
     @Test
-    public void testGetCommandsReturnsNewList() {
-        history.addCommand("U");
-        List<String> commands1 = history.getCommands();
-        history.addCommand("D");
-        List<String> commands2 = history.getCommands();
+    void testGetCommandRejectsInvalidIndex() {
+        // Decision Coverage, Boundary Coverage
+        // Arrange
+        CommandHistory history = new CommandHistory();
 
-        assertEquals(1, commands1.size(), "First list should have 1 element");
-        assertEquals(2, commands2.size(), "Second list should have 2 elements");
+        // Act / Assert
+        assertThrows(IndexOutOfBoundsException.class, () -> history.getCommand(0));
     }
 
     @Test
-    public void testAddCommandWithSpaces() {
-        history.addCommand("M 10");
-        history.addCommand("I 20");
-        assertEquals("M 10", history.getCommand(0));
-        assertEquals("I 20", history.getCommand(1));
-    }
+    void testToStringIncludesRecordedCommands() {
+        // Statement Coverage
+        // Arrange
+        CommandHistory history = new CommandHistory();
+        history.addCommand("P");
 
-    @Test
-    public void testAddCommandsInOrderOfExecution() {
-        String[] commands = {"I 5", "D", "M 3", "R", "M 2", "P", "C", "Q"};
-        for (String cmd : commands) {
-            history.addCommand(cmd);
-        }
+        // Act
+        String text = history.toString();
 
-        assertEquals(8, history.size());
-        for (int i = 0; i < commands.length; i++) {
-            assertEquals(commands[i], history.getCommand(i), "Commands should be in order of execution");
-        }
-    }
-
-    @Test
-    public void testToString() {
-        history.addCommand("U");
-        history.addCommand("D");
-        String output = history.toString();
-        assertNotNull(output);
-        assertTrue(output.contains("CommandHistory"));
+        // Assert
+        assertTrue(text.contains("CommandHistory"));
+        assertTrue(text.contains("P"));
+        assertNotEquals("", text);
     }
 }
