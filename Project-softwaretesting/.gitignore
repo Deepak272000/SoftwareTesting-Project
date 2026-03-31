@@ -13,11 +13,11 @@
 *.tar.gz
 *.rar
 
-# Maven
 target/
 .m2/
 pom.xml.tag
 pom.xml.releaseBackup
+# Trigger workflow: test v1-release branch
 pom.xml.versionsBackup
 pom.xml.bak
 release.properties
