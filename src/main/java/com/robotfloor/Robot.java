@@ -127,11 +127,32 @@ public class Robot {
      * Move the robot forward by the specified number of spaces
      * @param spaces Number of spaces to move forward
      */
+    /**
+     * Move the robot forward by the specified number of spaces (no boundary check)
+     */
     public void move(int spaces) {
         for (int i = 0; i < spaces; i++) {
             x += facing.getDx();
             y += facing.getDy();
         }
+    }
+
+    /**
+     * Move the robot forward by the specified number of spaces, with boundary check
+     * @return true if move succeeded, false if out of bounds
+     */
+    public boolean move(int spaces, Floor floor) {
+        for (int i = 0; i < spaces; i++) {
+            int newX = x + facing.getDx();
+            int newY = y + facing.getDy();
+            if (!floor.isValidPosition(newX, newY)) {
+                System.out.println("Error: Move would go out of grid boundary");
+                return false;
+            }
+            x = newX;
+            y = newY;
+        }
+        return true;
     }
 
     /**

@@ -134,13 +134,22 @@ public class RobotSimulator {
                 System.out.println("Error: Move distance must be non-negative");
                 return;
             }
+            if (spaces == 0) {
+                System.out.println("Error: Move distance must be greater than zero");
+                return;
+            }
 
             // Move and mark the floor
             for (int i = 0; i < spaces; i++) {
                 if (robot.isPenDown()) {
                     floor.mark(robot.getX(), robot.getY());
                 }
-                robot.move(1);
+                // Pass floor to robot.move for boundary check
+                boolean moved = robot.move(1, floor);
+                if (!moved) {
+                    // Stop further movement if out of bounds
+                    break;
+                }
             }
 
             // Mark the final position if pen is down
@@ -241,6 +250,7 @@ public class RobotSimulator {
         scanner.close();
     }
 
+    
     /**
      * Main method
      */
