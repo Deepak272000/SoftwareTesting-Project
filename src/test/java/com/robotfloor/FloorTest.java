@@ -5,148 +5,144 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for Floor class
- */
-public class FloorTest {
+class FloorTest {
 
-    private Floor floor;
+    @Test
+    void testConstructorInitializesGridWithRequestedSize() {
+        // Statement Coverage
+        // Arrange
+        Floor floor = new Floor(4);
 
-    @BeforeEach
-    public void setUp() {
-        floor = new Floor(10);
+        // Act
+        int[][] grid = floor.getGrid();
+
+        // Assert
+        assertEquals(4, floor.getSize());
+        assertNotNull(grid);
+        assertEquals(4, grid.length);
+        assertEquals(4, grid[0].length);
     }
 
     @Test
-    public void testFloorInitialization() {
-        assertEquals(10, floor.getSize(), "Floor size should be 10");
-        assertNotNull(floor.getGrid(), "Grid should not be null");
-    }
-
-    @Test
-    public void testFloorGridAllZeros() {
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                assertEquals(0, floor.getValue(i, j), "All cells should be initialized to 0");
-            }
-        }
-    }
-
-    @Test
-    public void testInvalidFloorSize() {
+    void testConstructorRejectsZeroAndNegativeSizes() {
+        // Decision Coverage, Condition Coverage
+        // Arrange / Act / Assert
         assertThrows(IllegalArgumentException.class, () -> new Floor(0));
-        assertThrows(IllegalArgumentException.class, () -> new Floor(-5));
+        assertThrows(IllegalArgumentException.class, () -> new Floor(-1));
     }
 
     @Test
-    public void testMarkPosition() {
-        floor.mark(0, 0);
-        assertEquals(1, floor.getValue(0, 0), "Marked position should have value 1");
+    void testIsValidPositionCoversIndependentConditionOutcomes() {
+        // Condition Coverage, Multiple Condition Coverage
+        // Arrange
+        Floor floor = new Floor(3);
+
+        // Act / Assert
+        assertTrue(floor.isValidPosition(0, 0), "TTTT should be valid");
+        assertFalse(floor.isValidPosition(-1, 0), "FTTT should be invalid because x >= 0 is false");
+        assertFalse(floor.isValidPosition(3, 0), "TFTT should be invalid because x < size is false");
+        assertFalse(floor.isValidPosition(0, -1), "TTFT should be invalid because y >= 0 is false");
+        assertFalse(floor.isValidPosition(0, 3), "TTTF should be invalid because y < size is false");
+        assertFalse(floor.isValidPosition(-1, -1), "FTFT should be invalid with both lower bounds false");
     }
 
     @Test
-    public void testMarkMultiplePositions() {
-        floor.mark(0, 0);
+    void testMarkUpdatesOnlyValidPosition() {
+        // Statement Coverage, Decision Coverage
+        // Arrange
+        Floor floor = new Floor(3);
+
+        // Act
+        floor.mark(1, 2);
+        floor.mark(-1, 2);
+        floor.mark(3, 2);
+
+        // Assert
+        assertEquals(1, floor.getValue(1, 2));
+        assertEquals(0, floor.getValue(0, 2));
+        assertEquals(0, floor.getValue(-1, 2));
+        assertEquals(0, floor.getValue(3, 2));
+    }
+
+    @Test
+    void testGetValueReturnsZeroForInvalidCoordinates() {
+        // Decision Coverage, Boundary Coverage
+        // Arrange
+        Floor floor = new Floor(2);
         floor.mark(1, 1);
-        floor.mark(5, 5);
 
-        assertEquals(1, floor.getValue(0, 0));
+        // Act / Assert
         assertEquals(1, floor.getValue(1, 1));
-        assertEquals(1, floor.getValue(5, 5));
-    }
-
-    @Test
-    public void testMarkSamePositionMultipleTimes() {
-        floor.mark(3, 3);
-        floor.mark(3, 3);
-        floor.mark(3, 3);
-        assertEquals(1, floor.getValue(3, 3), "Marking same position multiple times should keep value as 1");
-    }
-
-    @Test
-    public void testIsValidPosition() {
-        assertTrue(floor.isValidPosition(0, 0), "0, 0 should be valid");
-        assertTrue(floor.isValidPosition(9, 9), "9, 9 should be valid");
-        assertTrue(floor.isValidPosition(5, 5), "5, 5 should be valid");
-
-        assertFalse(floor.isValidPosition(-1, 0), "-1, 0 should be invalid");
-        assertFalse(floor.isValidPosition(0, -1), "0, -1 should be invalid");
-        assertFalse(floor.isValidPosition(10, 0), "10, 0 should be invalid");
-        assertFalse(floor.isValidPosition(0, 10), "0, 10 should be invalid");
-    }
-
-    @Test
-    public void testMarkOutOfBounds() {
-        // Should not throw exception, just ignore
-        floor.mark(-1, 0);
-        floor.mark(0, -1);
-        floor.mark(10, 0);
-        floor.mark(0, 10);
-
-        // All positions should still be 0
         assertEquals(0, floor.getValue(-1, 0));
         assertEquals(0, floor.getValue(0, -1));
-        assertEquals(0, floor.getValue(10, 0));
-        assertEquals(0, floor.getValue(0, 10));
+        assertEquals(0, floor.getValue(2, 0));
+        assertEquals(0, floor.getValue(0, 2));
     }
 
     @Test
-    public void testGetValueOutOfBounds() {
-        assertEquals(0, floor.getValue(-1, 0), "Out of bounds should return 0");
-        assertEquals(0, floor.getValue(0, -1), "Out of bounds should return 0");
-        assertEquals(0, floor.getValue(10, 0), "Out of bounds should return 0");
-    }
-
-    @Test
-    public void testClear() {
+    void testClearResetsPreviouslyMarkedCells() {
+        // Statement Coverage
+        // Arrange
+        Floor floor = new Floor(3);
         floor.mark(0, 0);
-        floor.mark(5, 5);
-        floor.mark(9, 9);
+        floor.mark(2, 2);
 
+        // Act
         floor.clear();
 
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                assertEquals(0, floor.getValue(i, j), "All values should be 0 after clear");
+        // Assert
+        for (int y = 0; y < floor.getSize(); y++) {
+            for (int x = 0; x < floor.getSize(); x++) {
+                assertEquals(0, floor.getValue(x, y));
             }
         }
     }
 
     @Test
-    public void testSmallFloor() {
-        Floor smallFloor = new Floor(1);
-        assertEquals(1, smallFloor.getSize());
-        smallFloor.mark(0, 0);
-        assertEquals(1, smallFloor.getValue(0, 0));
+    void testToStringShowsMarkedAndUnmarkedCells() {
+        // Statement Coverage, Decision Coverage
+        // Arrange
+        Floor floor = new Floor(2);
+        floor.mark(0, 0);
+        floor.mark(1, 1);
+
+        // Act
+        String text = floor.toString();
+
+        // Assert
+        assertTrue(text.contains(" 1:"));
+        assertTrue(text.contains(" 0:"));
+        assertTrue(text.contains("*"));
     }
 
     @Test
-    public void testLargeFloor() {
-        Floor largeFloor = new Floor(100);
-        assertEquals(100, largeFloor.getSize());
-        largeFloor.mark(0, 0);
-        largeFloor.mark(99, 99);
-        assertEquals(1, largeFloor.getValue(0, 0));
-        assertEquals(1, largeFloor.getValue(99, 99));
-    }
+    void testPrintWritesFormattedGridToConsole() {
+        // Statement Coverage, Loop Decision Coverage
+        // Arrange
+        Floor floor = new Floor(2);
+        floor.mark(1, 0);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(output));
 
-    @Test
-    public void testToString() {
-        String output = floor.toString();
-        assertNotNull(output);
-        assertTrue(output.length() > 0);
-    }
+        try {
+            // Act
+            floor.print();
+        } finally {
+            System.setOut(originalOut);
+        }
 
-    @Test
-    public void testGridIndependence() {
-        Floor floor1 = new Floor(5);
-        Floor floor2 = new Floor(5);
-
-        floor1.mark(0, 0);
-        assertEquals(1, floor1.getValue(0, 0));
-        assertEquals(0, floor2.getValue(0, 0), "Marking floor1 should not affect floor2");
+        // Assert
+        String printed = output.toString();
+        assertTrue(printed.contains(" 0 "));
+        assertTrue(printed.contains(" 1 "));
+        assertTrue(printed.contains(" 0:"));
+        assertTrue(printed.contains(" * "));
     }
 }

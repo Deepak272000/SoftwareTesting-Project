@@ -1,0 +1,43 @@
+Coverage Type,Test Case ID,Description,Input / Condition Focus,Expected Result,Actual Result,Result
+Statement Coverage,SC01,Initialize with valid size,I 5,Initialization path executes successfully,"System initializes and prints System initialized with 5 x 5 floor",Pass
+Statement Coverage,SC02,Pen down and move robot,"I 5, D, M 2",Movement and marking statements execute,"Robot moves from (0,0) to (0,2) and path is marked",Pass
+Statement Coverage,SC03,Turn right and move,"I 5, R, M 1, C",Turn and move statements execute,"Robot turns east, moves to (1,0), and current position reflects that",Pass
+Statement Coverage,SC04,Print floor,"I 5, D, M 2, P",Print statements execute,"Floor grid is printed with traced cells shown as *",Pass
+Statement Coverage,SC05,Show current position,"I 5, C",Current-position output statement executes,"Output is Position: 0, 0 - Pen: up - Facing: north",Pass
+Statement Coverage,SC06,Quit simulator,Q,Quit path executes,"Output is Program ended. and simulator stops running",Pass
+Decision Coverage,DC01,Initialize with valid size,I 5,Valid branch taken and floor initialized,"initialize(5) runs and floor is created",Pass
+Decision Coverage,DC02,Initialize with invalid size,I 0,Invalid branch taken and error shown,"Output is Error: Floor size must be greater than zero",Pass
+Decision Coverage,DC03,Move before initialization,M 3,"floor == null branch taken; error shown","Output is Error: System not initialized. Use 'I n' command first.",Pass
+Decision Coverage,DC04,Move with negative value,"I 5, M -1","spaces < 0 branch taken; error shown","Output is Error: Move distance must be non-negative",Pass
+Decision Coverage,DC05,Move with pen up,"I 5, M 2","robot.isPenDown() false branch taken","Robot moves, but floor is not marked",Pass
+Decision Coverage,DC06,Move with pen down,"I 5, D, M 2","robot.isPenDown() true branch taken and floor marked","Robot moves and floor marking occurs during and after movement",Pass
+Decision Coverage,DC07,Empty input command,""" """,Empty-input decision returns immediately,Method returns without processing any command,Pass
+Decision Coverage,DC08,Unknown command,X,Default switch branch prints unknown command,"Output is Unknown command: x",Pass
+Condition Coverage,CC01,Null input,null,"input == null evaluates TRUE","Method returns immediately without output",Pass
+Condition Coverage,CC02,Blank input,""" ""","input.trim().isEmpty() evaluates TRUE","Method returns immediately without output",Pass
+Condition Coverage,CC03,Valid input,I 5,Command processed,System initializes,Pass
+Condition Coverage,CC04,Invalid floor size,I 0,"size <= 0 evaluates TRUE","Error displayed",Pass
+Condition Coverage,CC05,Valid floor size,I 5,"size <= 0 evaluates FALSE","Floor initialized",Pass
+Condition Coverage,CC06,Move before init,M 2,"floor == null evaluates TRUE","Error shown",Pass
+Condition Coverage,CC07,Move after init,"I 5, M 2","floor == null evaluates FALSE","Robot moves",Pass
+Condition Coverage,CC08,Negative move,"I 5, M -1","spaces < 0 evaluates TRUE","Error displayed",Pass
+Condition Coverage,CC09,Valid move,"I 5, M 1","spaces < 0 evaluates FALSE","Move executed",Pass
+Condition Coverage,CC10,Pen down,"I 5, D, M 1","robot.isPenDown() evaluates TRUE","Cell marked",Pass
+Condition Coverage,CC11,Pen up,"I 5, M 1","robot.isPenDown() evaluates FALSE","No marking",Pass
+Condition Coverage,CC12,Valid position,"(1,1)","x >= 0, x < size, y >= 0, y < size all TRUE",True,Pass
+Condition Coverage,CC13,Negative x,"(-1,1)","x >= 0 evaluates FALSE",False,Pass
+Condition Coverage,CC14,X out of bound,"(5,1)","x < size evaluates FALSE",False,Pass
+Condition Coverage,CC15,Negative y,"(1,-1)","y >= 0 evaluates FALSE",False,Pass
+Condition Coverage,CC16,Y out of bound,"(1,5)","y < size evaluates FALSE",False,Pass
+Multiple Condition Coverage,MCC01,All conditions true,"(1,1)",TTTT combination,Returns true,Pass
+Multiple Condition Coverage,MCC02,First condition false,"(-1,1)",FTTT combination,Returns false,Pass
+Multiple Condition Coverage,MCC03,Second condition false,"(5,1)",TFTT combination,Returns false,Pass
+Multiple Condition Coverage,MCC04,Third condition false,"(1,-1)",TTFT combination,Returns false,Pass
+Multiple Condition Coverage,MCC05,Fourth condition false,"(1,5)",TTTF combination,Returns false,Pass
+Multiple Condition Coverage,MCC06,Multiple conditions false,"(-1,-1)",FTFT combination,Returns false,Pass
+Mutation Testing,MT01,Boundary mutant for move distance,"I 5, M 0","Kill mutant changing spaces < 0 to spaces <= 0","Zero move should be accepted without error",Pass
+Mutation Testing,MT02,Boolean flip mutant for pen state,"I 5, M 2","Kill mutant flipping robot.isPenDown()","Floor must remain unmarked when pen is up",Pass
+Mutation Testing,MT03,Pen-down marking mutant,"I 5, D, M 2","Kill mutant removing final floor.mark()","Final position and path must be marked",Pass
+Mutation Testing,MT04,Loop-boundary mutant,"I 5, D, M 2","Kill mutant changing i < spaces to i <= spaces","Robot must stop exactly at (0,2)",Pass
+Data Flow Testing,DF01,History def-use pair across initialization and replay,"I 4, D, M 1, H","Definitions in history are replayed and used correctly","History rebuilt from replayed commands",Pass
+Data Flow Testing,DF02,Robot/Floor def-use pair in move with pen down,"I 5, D, M 2","Robot position definitions reach floor marking uses","Cells (0,0), (0,1), (0,2) are marked",Pass
