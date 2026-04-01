@@ -1,4 +1,4 @@
-﻿package com.robotfloor;
+package com.robotfloor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
