@@ -1,8 +1,9 @@
 # Robot Floor Simulator
 
+
 ![Java](https://img.shields.io/badge/Java-11%2B-blue)
 ![Maven](https://img.shields.io/badge/Build-Maven-C71A36)
-![Tests](https://img.shields.io/badge/Tests-45-success)
+![Tests](https://img.shields.io/badge/Tests-61-success)
 ![Coverage](https://img.shields.io/badge/Coverage-90%25%2B-brightgreen)
 
 A Java/Maven command-line simulator that controls a robot moving on an `N x N` floor, tracks pen state, records command history, and includes automated unit, integration, and coverage verification.
@@ -180,11 +181,12 @@ Program ended.
 
 ## Test Suite
 
-The current automated suite contains **45 tests**:
+The current automated suite contains **61 tests**:
 
 - **RobotTest** - 18 unit tests for movement, rotation, and pen state
 - **FloorTest** - 14 unit tests for marking, printing, and bounds behavior
 - **CommandHistoryTest** - 10 unit tests for history recording and replay support
+- **RobotSimulatorTest** - 16 unit tests for simulator command processing
 - **RobotSimulatorIntegrationTest** - 3 integration tests for end-to-end command flows
 
 ### Integration Test Coverage
@@ -258,7 +260,7 @@ Workflow triggers are configured for push and pull request validation on these b
 
 The software was approved for release based on two conditions:
 
-- all automated tests passed successfully (`45/45`)
+- all automated tests passed successfully (`61/61`)
 - measured coverage exceeded the predefined report thresholds for function, statement, path approximation, condition, and line coverage
 
 This decision is documented in the project report and supported by the generated JaCoCo and Surefire outputs.

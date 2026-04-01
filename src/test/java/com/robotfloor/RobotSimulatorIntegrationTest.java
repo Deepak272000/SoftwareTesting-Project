@@ -1,76 +1,104 @@
-package com.robotfloor;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+﻿package com.robotfloor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class RobotSimulatorIntegrationTest {
+/**
+ * Integration tests for RobotSimulator command flow across Robot, Floor and CommandHistory.
+ */
+public class RobotSimulatorIntegrationTest {
 
     private final PrintStream originalOut = System.out;
-    private ByteArrayOutputStream output;
+    private ByteArrayOutputStream outputStream;
 
     @BeforeEach
-    void setUp() {
-        output = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(output));
+    public void setUpOutput() {
+        outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
     }
 
     @AfterEach
-    void tearDown() {
+    public void restoreOutput() {
         System.setOut(originalOut);
     }
 
     @Test
-    void testIntegratedCommandSequenceProducesExpectedTraceAndStatus() {
-        // Statement Coverage, Decision Coverage
-        // Arrange
+    public void testThreeCycleMovementWithMixedPenStatesPrintsExpectedShape() {
         RobotSimulator simulator = new RobotSimulator();
 
-        // Act
-        simulator.executeCommand("I 5");
+        simulator.executeCommand("I 6");
+
         simulator.executeCommand("D");
-        simulator.executeCommand("M 2");
+        simulator.executeCommand("M 3");
         simulator.executeCommand("R");
-        simulator.executeCommand("M 1");
+        simulator.executeCommand("M 2");
+
+        simulator.executeCommand("U");
+        simulator.executeCommand("R");
+        simulator.executeCommand("M 2");
+
+        simulator.executeCommand("D");
+        simulator.executeCommand("L");
+        simulator.executeCommand("M 2");
+
         simulator.executeCommand("P");
         simulator.executeCommand("C");
 
-        // Assert
-        String console = output.toString();
-        assertTrue(console.contains("System initialized with 5 x 5 floor"));
-        assertTrue(console.contains(" 2:"));
-        assertTrue(console.contains(" 1:"));
-        assertTrue(console.contains(" 0:"));
-        assertTrue(console.contains(" * "));
-        assertTrue(console.contains("Position: 1, 2 - Pen: down - Facing: east"));
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("System initialized with 6 x 6 floor"));
+        assertTrue(output.contains("Position: 4, 1 - Pen: down - Facing: east"));
+
+        assertTrue(output.contains(" 3:  *  *  *"), "Top path on row 3 should be marked");
+        assertTrue(output.contains(" 2:  *"), "Only column 0 should be marked on row 2");
+        assertTrue(output.contains(" 1:  *     *  *  *"), "Row 1 should contain vertical and horizontal marked cells");
+        assertTrue(output.contains(" 0:  *"), "Origin path should be marked on row 0");
     }
 
     @Test
-    void testInvalidCommandFlowReportsUserFacingErrors() {
-        // Decision Coverage, Condition Coverage
-        // Arrange
+    public void testInvalidAndUninitializedCommandsAreReported() {
         RobotSimulator simulator = new RobotSimulator();
 
-        // Act
-        simulator.executeCommand("M");
+        simulator.executeCommand("M 2");
         simulator.executeCommand("P");
-        simulator.executeCommand("I abc");
         simulator.executeCommand("I 0");
-        simulator.executeCommand("I 2");
+        simulator.executeCommand("I abc");
+        simulator.executeCommand("I 3");
         simulator.executeCommand("M -1");
+        simulator.executeCommand("M bad");
         simulator.executeCommand("Z");
 
-        // Assert
-        String console = output.toString();
-        assertTrue(console.contains("Error: System not initialized. Use 'I n' command first."));
-        assertTrue(console.contains("Error: Invalid floor size. Usage: I <number>"));
-        assertTrue(console.contains("Error: Floor size must be greater than zero"));
-        assertTrue(console.contains("Error: Move distance must be non-negative"));
-        assertTrue(console.contains("Unknown command: z"));
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("Error: System not initialized. Use 'I n' command first."));
+        assertTrue(output.contains("Error: Floor size must be greater than zero"));
+        assertTrue(output.contains("Error: Invalid floor size. Usage: I <number>"));
+        assertTrue(output.contains("Error: Move distance must be non-negative"));
+        assertTrue(output.contains("Error: Invalid move distance. Usage: M <number>"));
+        assertTrue(output.contains("Unknown command: z"));
+    }
+
+    @Test
+    public void testHistoryReplayAndQuitFlow() {
+        RobotSimulator simulator = new RobotSimulator();
+
+        simulator.executeCommand("I 4");
+        simulator.executeCommand("D");
+        simulator.executeCommand("M 1");
+        simulator.executeCommand("H");
+        simulator.executeCommand("Q");
+
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("Replaying history..."));
+        assertTrue(output.contains("> Enter command: D"));
+        assertTrue(output.contains("> Enter command: M 1"));
+        assertTrue(output.contains("History replay complete."));
+        assertTrue(output.contains("Program ended."));
     }
 }
